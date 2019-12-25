@@ -1,7 +1,7 @@
 # NeAopLogin AOP之集中式登录架构设计
 ## 一、理论
-![image](https://github.com/tianyalu/NeAopLogin/raw/master/show/apo_login_structure1.png)  
-![image](https://github.com/tianyalu/NeAopLogin/raw/master/show/apo_login_structure2.png)  
+![image](https://github.com/tianyalu/NeAopLogin/raw/master/show/aop_login_structure1.png)  
+![image](https://github.com/tianyalu/NeAopLogin/raw/master/show/aop_login_structure2.png)  
 
 ## 二、实操
 > PointCut: 切入点(通过使用一些特定的表达式过滤出来的想要切入Advice的连接点)  
