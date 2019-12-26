@@ -7,7 +7,131 @@
 > PointCut: 切入点(通过使用一些特定的表达式过滤出来的想要切入Advice的连接点)  
 > Advice: 通知（向切入点中注入的代码的一种实现方法）[Before,After,Around->我们的代码在切入点处执行的时机]  
 > Joint Point: 连接点（所有的目标方法都是连接点）  
-### 2.1 注解类
+### 2.1 `gradle`文件
+版本界限：  
+> AS-3.0.1 + gradle4.4-all (需要配置r17的NDK环境）  
+> AS-3.2.1 + gradle4.6-all (正常使用，无警告）  
+
+`project`下的`gradle`文件：  
+```groovy
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.0.0'
+        
+        //版本界限：AS-3.0.1 + gradle4.4-all (需要配置r17的NDK环境）
+        //版本界限：AS-3.2.1 + gradle4.6-all (正常使用，无警告）
+        classpath 'org.aspectj:aspectjtools:1.8.9'
+        classpath 'org.aspectj:aspectjweaver:1.8.9'
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+```
+`app`下的`gradle`文件： 
+```groovy
+apply plugin: 'com.android.application'
+//版本界限：AS-3.0.1 + gradle4.4-all (需要配置r17的NDK环境）
+//版本界限：AS-3.2.1 + gradle4.6-all (正常使用，无警告）
+buildscript { // 编译时用Aspect专门的编译器，不再使用传统的javac
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.aspectj:aspectjtools:1.8.9'
+        classpath 'org.aspectj:aspectjweaver:1.8.9'
+    }
+}
+
+android {
+    compileSdkVersion 26
+    defaultConfig {
+        applicationId "com.sty.ne.aoplogin"
+        minSdkVersion 19
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+
+    implementation 'org.aspectj:aspectjrt:1.8.13'
+}
+
+//版本界限：AS-3.0.1 + gradle4.4-all (需要配置r17的NDK环境）
+//版本界限：AS-3.2.1 + gradle4.6-all (正常使用，无警告）
+import org.aspectj.bridge.IMessage
+import org.aspectj.bridge.MessageHandler
+import org.aspectj.tools.ajc.Main
+
+final def log = project.logger
+final def variants = project.android.applicationVariants
+
+variants.all { variant ->
+    if(!variant.buildType.isDebuggable()) {
+        log.debug("Skipping no-debuggable build type '${variant.buildType.name}'.")
+        return
+    }
+
+    JavaCompile javaCompile = variant.javaCompile
+    javaCompile.doLast {
+        String[] args = ["-showWeaveInfo",
+                        "-1.8",
+                        "-inpath", javaCompile.destinationDir.toString(),
+                        "-aspectpath", javaCompile.classpath.asPath,
+                        "-d", javaCompile.destinationDir.toString(),
+                        "-classpath", javaCompile.classpath.asPath,
+                        "-bootclasspath", project.android.bootClasspath.join(File.pathSeparator)]
+        log.debug("ajc args: " + Arrays.toString(args))
+
+        MessageHandler handler = new MessageHandler(true)
+        new Main().run(args, handler)
+        for (IMessage message : handler.getMessages(null, true)) {
+            switch (message.getKind()) {
+                case IMessage.ABORT:
+                case IMessage.ERROR:
+                case IMessage.FAIL:
+                    log.error message.message, message.thrown
+                    break
+                case IMessage.WARNING:
+                    log.warn message.message, message.thrown
+                    break
+                case IMessage.INFO:
+                    log.info message.message, message.thrown
+                    break
+                case IMessage.DEBUG:
+                    log.debug message.message, message.thrown
+                    break
+            }
+        }
+    }
+}
+```
+
+### 2.2 注解类
 `ClickBehavior`:  
 ```java
 //用户点击痕迹（行为统计）
@@ -25,7 +149,7 @@ public @interface ClickBehavior {
 public @interface LoginCheck {
 }
 ```
-### 2.2 切面类
+### 2.3 切面类
 `ClickBehaviorAspect`:  
 ```java
 @Aspect //定义切面类
@@ -95,7 +219,7 @@ public class LoginCheckAspect {
     }
 }
 ```
-### 2.3 `MainActivity`类
+### 2.4 `MainActivity`类
 ```java
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     private static final String TAG = "sty--->";
