@@ -3,7 +3,8 @@
 ![image](https://github.com/tianyalu/NeAopLogin/raw/master/show/aop_login_structure1.png)  
 ![image](https://github.com/tianyalu/NeAopLogin/raw/master/show/aop_login_structure2.png)  
 
-## 二、实操
+## 二、
+本文是在编译期通过插入代码的方式来实现切面编程的，所以需要使用`AspectJ`来替换传统的`javac`。  
 > PointCut: 切入点(通过使用一些特定的表达式过滤出来的想要切入Advice的连接点)  
 > Advice: 通知（向切入点中注入的代码的一种实现方法）[Before,After,Around->我们的代码在切入点处执行的时机]  
 > Joint Point: 连接点（所有的目标方法都是连接点）  
