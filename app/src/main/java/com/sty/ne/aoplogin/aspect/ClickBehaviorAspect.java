@@ -16,7 +16,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 
 @Aspect //定义切面类
 public class ClickBehaviorAspect {
-    private static final String TAG = "sty --> ";
+    private static final String TAG = "sty--> ";
 
     // 1.应用中用到了哪些注解，放到当前的切入点进行处理（找到需要处理的切入点）
     // execution, 以方法执行时作为切点，触发Aspect类

@@ -11,7 +11,7 @@ import com.sty.ne.aoplogin.annotation.ClickBehavior;
 import com.sty.ne.aoplogin.annotation.LoginCheck;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
-    private static final String TAG = "sty--->";
+    private static final String TAG = "sty-->";
     private Button btnLogin;
     private Button btnArea;
     private Button btnCoupon;
@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void onBtnLoginClicked() {
         Log.i(TAG, "模拟接口请求...验证通过，登录成功");
     }
-    //用户行为统计
+    //用户行为统计（友盟统计？ 后台要求自己统计的话就要用到切面思想了）
     @ClickBehavior("我的专区")
     @LoginCheck
     private void onBtnAreaClicked() {

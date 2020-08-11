@@ -1,17 +1,40 @@
-# NeAopLogin AOP之集中式登录架构设计
+
+
+# `AOP`之集中式登录架构设计(用户行为统计、全局登录验证)
+
+[TOC]
+
 ## 一、理论
+
+### 1.1 `AOP`
+
+`AOP`是`Aspect Oriented Programming`的缩写，即**面向切面编程**。它和我们平时接触到的`OOP`都是编程的不同思想，`OOP`即**面向对象编程**，它提倡的是将功能模块化，对象化。而`AOP`的思想则大不一样，它提倡的是针对同一类问题的统一处理。
+
+> 当然我们在实际编程过程中，不可能单纯地按照`AOP`或者`OOP`的思想来编程，很多时候，可能会混合多种编程思想，不必要纠结该使用哪种思想，取百家之长才是正道。
+
+那么`AOP`这种编程思想有什么用呢？一般来说主要用于不想侵入原有代码的场景中，例如`SDK`需要无侵入地在宿主中插入一些代码，做日志埋点、性能监控、动态权限控制甚至代码调试等等……
+### 1.2 切面抽象
+
 ![image](https://github.com/tianyalu/NeAopLogin/raw/master/show/aop_login_structure1.png)  
 ![image](https://github.com/tianyalu/NeAopLogin/raw/master/show/aop_login_structure2.png)  
 
+### 1.3 `Aspectj`
+
+`AspectJ`是一个面向切面的框架，它扩展了`Java`语言。`AspectJ`定义了`AOP`语法，它有一个专门的编译器用来生成遵守`Java`字节编码规范的`Class`文件。
+
+`Aspectj`中的一些重要概念如下：
+
+> * `PointCut`: 切入点(通过使用一些特定的表达式过滤出来的想要切入`Advice`的连接点)；
+> * `Advice`: 通知（向切入点中注入的代码的一种实现方法）[`Before`,`After`,`Around` --> 我们的代码在切入点处执行的时机]；
+> * `Joint Point`: 连接点（所有的目标方法都是连接点）。  
+
 ## 二、实操
 本文是在编译期通过插入代码的方式来实现切面编程的，所以需要使用`AspectJ`来替换传统的`javac`。  
-> PointCut: 切入点(通过使用一些特定的表达式过滤出来的想要切入Advice的连接点)  
-> Advice: 通知（向切入点中注入的代码的一种实现方法）[Before,After,Around->我们的代码在切入点处执行的时机]  
-> Joint Point: 连接点（所有的目标方法都是连接点）  
 ### 2.1 `gradle`文件
 版本界限：  
-> AS-3.0.1 + gradle4.4-all (需要配置r17的NDK环境）  
-> AS-3.2.1 + gradle4.6-all (正常使用，无警告）  
+> * AS-3.0.1 + gradle4.4-all （需要配置r17的`NDK`环境）
+> * AS-3.2.1 + gradle4.6-all （正常使用，无警告）
+> * AS-3.4.0 + gradle5.1.1-all（会有一些坑）  
 
 `project`下的`gradle`文件：  
 ```groovy
@@ -155,7 +178,7 @@ public @interface LoginCheck {
 ```java
 @Aspect //定义切面类
 public class ClickBehaviorAspect {
-    private static final String TAG = "sty --> ";
+    private static final String TAG = "sty--> ";
 
     // 1.应用中用到了哪些注解，放到当前的切入点进行处理（找到需要处理的切入点）
     // execution, 以方法执行时作为切点，触发Aspect类
@@ -223,7 +246,7 @@ public class LoginCheckAspect {
 ### 2.4 `MainActivity`类
 ```java
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
-    private static final String TAG = "sty--->";
+    private static final String TAG = "sty-->";
     private Button btnLogin;
     private Button btnArea;
     private Button btnCoupon;
